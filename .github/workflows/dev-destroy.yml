@@ -1,0 +1,37 @@
+name: Destroy Development Infrastructure
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_destroy:
+        description: 'Type "DESTROY-DEV" to confirm'
+        required: true
+
+jobs:
+  destroy:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.confirm_destroy == 'DESTROY-DEV'
+    environment: dev
+    
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        role-to-assume: arn:aws:iam::554115127259:role/GitHub
+        aws-region: us-east-1
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+
+    - name: Terraform Init
+      run: terraform init -backend-config="key=dev/terraform.tfstate"
+
+    - name: Terraform Destroy
+      run: terraform destroy -auto-approve -var-file=dev.auto.tfvars -var="environment=dev"
