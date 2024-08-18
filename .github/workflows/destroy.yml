@@ -4,16 +4,17 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Environment to destroy (dev/staging/prod)'
+        description: 'Environment to destroy (dev/staging/production)'
         required: true
       confirm_destroy:
-        description: 'Type "DESTROY-<ENV>" to confirm (e.g., DESTROY-PROD)'
+        description: 'Type "DESTROY-<ENV>" to confirm (e.g., DESTROY-PRODUCTION)'
         required: true
 
 jobs:
   destroy:
     runs-on: ubuntu-latest
     if: github.event.inputs.confirm_destroy == format('DESTROY-{0}', upper(github.event.inputs.environment))
+    environment: ${{ github.event.inputs.environment }}
     
     permissions:
       id-token: write
