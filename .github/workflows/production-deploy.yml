@@ -1,9 +1,9 @@
-name: Deploy to Development
+name: Deploy to Production
 
 on:
   push:
     branches:
-      - dev
+      - main
 
 jobs:
   deploy:
@@ -21,13 +21,13 @@ jobs:
       uses: aws-actions/configure-aws-credentials@v2
       with:
         role-to-assume: arn:aws:iam::554115127259:role/GitHub
-        aws-region: us-east-1
+        aws-region: us-west-2
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
 
     - name: Terraform Init
-      run: terraform init -backend-config="key=dev/terraform.tfstate"
+      run: terraform init -backend-config="key=prod/terraform.tfstate"
 
     - name: Terraform Format
       run: terraform fmt -check
@@ -36,7 +36,7 @@ jobs:
       run: terraform validate
 
     - name: Terraform Plan
-      run: terraform plan -var-file=dev.auto.tfvars -var="environment=dev" -out=tfplan
+      run: terraform plan -var-file=prod.auto.tfvars -var="environment=prod" -out=tfplan
 
     - name: Terraform Show
       run: terraform show -no-color tfplan > tfplan.txt
@@ -48,4 +48,4 @@ jobs:
         path: tfplan.txt
 
     - name: Terraform Apply
-      run: terraform apply -auto-approve -var-file=dev.auto.tfvars -var="environment=dev"
+      run: terraform apply -auto-approve -var-file=prod.auto.tfvars -var="environment=prod"
